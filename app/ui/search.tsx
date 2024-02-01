@@ -1,10 +1,22 @@
 'use client';
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 export default function Search({ placeholder }: { placeholder: string }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+  //URLSearchParams is a Web API that provides utility methods for manipulating the URL query parameters.
+  //Instead of creating a complex string literal, you can use it to get the params string like ?page=1&query=a.
   function handleSearch(term: string) {
-    console.log(term);
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set('query', term);
+    } else {
+      params.delete('query');
+    }
+    replace(`${pathname}?${params.toString()}`);
   }
   return (
     <div className="relative flex flex-1 flex-shrink-0">
@@ -17,7 +29,12 @@ export default function Search({ placeholder }: { placeholder: string }) {
         onChange={(e) => {
           handleSearch(e.target.value);
         }}
+        defaultValue={searchParams.get('query')?.toString()}
       />
+      {/* If you're using state to manage the value of an input, you'd use the value attribute to make it a controlled component. 
+This means React would manage the input's state.
+However, since you're not using state, you can use defaultValue. 
+This means the native input will manage its own state. This is okay since you're saving the search query to the URL instead of state. */}
       <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
     </div>
   );
